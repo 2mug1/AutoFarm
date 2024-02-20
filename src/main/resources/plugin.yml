@@ -1,0 +1,5 @@
+name: AutoFarm
+version: 1.0.0
+main: com.github.iamtakagi.autofarm.AutoFarm
+author: iamtakagi
+api-version: 1.20
