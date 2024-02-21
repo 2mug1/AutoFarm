@@ -2,7 +2,6 @@ package com.github.iamtakagi.autofarm;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
@@ -16,7 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class AutoFarm extends JavaPlugin implements Listener {
 
   public void onEnable() {
-    this.getServer().getPluginManager().registerEvents(this, this);
+    getServer().getPluginManager().registerEvents(this, this);
   }
 
   public void onDisable() {
@@ -58,35 +57,28 @@ public class AutoFarm extends JavaPlugin implements Listener {
     } else if (hasSeed(seedBlockType, player)) {
       removeItems((Inventory) player.getInventory(), seedBlockType, 1);
       final Material finalCropBlockType = cropBlockType;
-      Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-        public void run() {
-          block.setType(finalCropBlockType);
-        }
-      }, 1L);
+      Bukkit.getScheduler().runTaskLater(this, () -> block.setType(finalCropBlockType), 1L);
 
       event.setCancelled(false);
     }
   }
 
   private boolean hasSeed(Material seedType, Player player) {
-    return (player.getInventory().containsAtLeast(new ItemStack(seedType), 1)
-        || player.getInventory().getItemInOffHand().getType() == seedType);
+    return player.getInventory().containsAtLeast(new ItemStack(seedType), 1)
+        || player.getInventory().getItemInOffHand().getType() == seedType;
   }
 
   private void removeItems(Inventory inventory, Material type, int amount) {
     if (amount <= 0)
       return;
-    int size = inventory.getSize();
-    for (int slot = 0; slot < size; slot++) {
-      ItemStack is = inventory.getItem(slot);
-      if (is != null &&
-          type == is.getType()) {
-        int newAmount = is.getAmount() - amount;
+    for (ItemStack item : inventory.getContents()) {
+      if (item != null && type == item.getType()) {
+        int newAmount = item.getAmount() - amount;
         if (newAmount > 0) {
-          is.setAmount(newAmount);
+          item.setAmount(newAmount);
           break;
         }
-        inventory.clear(slot);
+        inventory.removeItem(item);
         amount = -newAmount;
         if (amount == 0)
           break;
